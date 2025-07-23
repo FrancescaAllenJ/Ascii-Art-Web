@@ -23,7 +23,8 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-
+	// "Method not allowed is a 405, its not the same as your server is completely broken,
+	// its reachable but isnt listening for that kind of request"
 	fmt.Fprintln(w, "Welcome to the ASCII Art Web App!")
 }
 
