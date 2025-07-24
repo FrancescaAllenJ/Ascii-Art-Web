@@ -5,9 +5,11 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+
+	"ascii-art-web/asciiart" // Adjust this if needed depending on your module name
 )
 
-// handleHome handles GET /
+// handleHome renders the homepage with the form
 func handleHome(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -28,66 +30,29 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handlePost handles POST /ascii-art
+// handlePost processes the submitted text and displays ASCII art
 func handlePost(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	// Parse form input
-	err := r.ParseForm()
+	input := r.FormValue("text")
+	banner := "standard" // We’ll support this first
+
+	asciiOutput, err := asciiart.GenerateASCII(input, banner)
 	if err != nil {
-		http.Error(w, "Bad Request: Unable to parse form", http.StatusBadRequest)
-		log.Println("Error parsing form:", err)
-		return
-	}
-
-	inputText := r.FormValue("inputText")
-	banner := r.FormValue("banner")
-
-	// Validate form input
-	if inputText == "" || banner == "" {
-		http.Error(w, "Bad Request: Missing input or banner", http.StatusBadRequest)
-		return
-	}
-
-	// Call ASCII generator (replace this with your own logic)
-	asciiArt, err := GenerateASCIIArt(inputText, banner)
-	if err != nil {
-		http.Error(w, "Internal Server Error: Failed to generate ASCII art", http.StatusInternalServerError)
+		http.Error(w, "Error generating ASCII art", http.StatusInternalServerError)
 		log.Println("ASCII generation error:", err)
 		return
 	}
 
-	// Load template again to render result
-	tmpl, err := template.ParseFiles("templates/index.html")
-	if err != nil {
-		http.Error(w, "Template not found", http.StatusNotFound)
-		log.Println("Error loading result template:", err)
-		return
-	}
-
-	// Data to pass into template
-	data := struct {
-		Art    string
-		Text   string
-		Banner string
-	}{
-		Art:    asciiArt,
-		Text:   inputText,
-		Banner: banner,
-	}
-
-	// Render filled template with ASCII art
-	err = tmpl.Execute(w, data)
-	if err != nil {
-		http.Error(w, "Internal Server Error: Template execution failed", http.StatusInternalServerError)
-		log.Println("Template execution error:", err)
-	}
+	// Display the result as plain text (or update to HTML later)
+	w.Header().Set("Content-Type", "text/plain")
+	fmt.Fprint(w, asciiOutput)
 }
 
-// main sets up routes and starts the server
+// main starts the server and registers routes
 func main() {
 	http.HandleFunc("/", handleHome)
 	http.HandleFunc("/ascii-art", handlePost)
@@ -95,6 +60,6 @@ func main() {
 	fmt.Println("Server running at http://localhost:8080/")
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
-		fmt.Println("Error starting server:", err)
+		log.Fatal("Error starting server:", err)
 	}
 }
