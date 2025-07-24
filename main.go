@@ -2,20 +2,10 @@ package main
 
 import (
 	"fmt"
+	"html/template"
+	"log"
 	"net/http"
 )
-
-// main sets up the routes and starts the server
-func main() {
-	http.HandleFunc("/", handleHome)          // For GET requests
-	http.HandleFunc("/ascii-art", handlePost) // For POST requests
-
-	fmt.Println("Server running at http://localhost:8080/")
-	err := http.ListenAndServe(":8080", nil)
-	if err != nil {
-		fmt.Println("Error starting server:", err)
-	}
-}
 
 // handleHome handles GET /
 func handleHome(w http.ResponseWriter, r *http.Request) {
@@ -23,9 +13,20 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	// "Method not allowed is a 405, its not the same as your server is completely broken,
-	// its reachable but isnt listening for that kind of request"
-	fmt.Fprintln(w, "Welcome to the ASCII Art Web App!")
+
+	// Parse and execute the template for the homepage
+	tmpl, err := template.ParseFiles("templates/index.html")
+	if err != nil {
+		http.Error(w, "Template not found", http.StatusNotFound)
+		log.Println("Error parsing template:", err)
+		return
+	}
+
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		log.Println("Error executing template:", err)
+	}
 }
 
 // handlePost handles POST /ascii-art
@@ -36,4 +37,16 @@ func handlePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintln(w, "ASCII art generation coming soon!")
+}
+
+// main sets up routes and starts the server
+func main() {
+	http.HandleFunc("/", handleHome)          // For GET requests to homepage
+	http.HandleFunc("/ascii-art", handlePost) // For POST requests
+
+	fmt.Println("Server running at http://localhost:8080/")
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		fmt.Println("Error starting server:", err)
+	}
 }
