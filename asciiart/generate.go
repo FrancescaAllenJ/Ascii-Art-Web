@@ -1,53 +1,33 @@
 package asciiart
 
 import (
-	"bufio"
 	"fmt"
 	"os"
 	"strings"
 )
 
-// GenerateASCII takes a string and a banner name, and returns the ASCII art string.
-func GenerateASCII(input, banner string) (string, error) {
-	bannerFile := "banners/" + banner + ".txt"
-	file, err := os.Open(bannerFile)
+func GenerateASCII(text, banner string) (string, error) {
+	filePath := "banners/" + banner + ".txt"
+	content, err := os.ReadFile(filePath)
 	if err != nil {
-		return "", fmt.Errorf("failed to open banner file: %v", err)
+		return "", fmt.Errorf("failed to read banner file (%s): %w", filePath, err)
 	}
-	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
-	asciiMap := make(map[rune][]string)
+	lines := strings.Split(strings.ReplaceAll(string(content), "\r\n", "\n"), "\n")
 
-	var currentRune rune = 32 // starting from ASCII space
-	for scanner.Scan() {
-		var lines []string
-		for i := 0; i < 8; i++ {
-			if !scanner.Scan() {
-				return "", fmt.Errorf("unexpected EOF while reading ASCII lines")
+	var builder strings.Builder
+	for i := 0; i < 8; i++ {
+		for _, r := range text {
+			if r < 32 || r > 126 {
+				return "", fmt.Errorf("unsupported character: %q", r)
 			}
-			lines = append(lines, scanner.Text())
-		}
-		asciiMap[currentRune] = lines
-		currentRune++
-	}
-
-	// Split the input string into lines (in case of newlines)
-	lines := strings.Split(input, "\\n")
-	var result strings.Builder
-
-	for _, line := range lines {
-		for i := 0; i < 8; i++ {
-			for _, char := range line {
-				if art, ok := asciiMap[char]; ok {
-					result.WriteString(art[i])
-				} else {
-					result.WriteString("        ") // fallback for unknown characters
-				}
+			start := int(r-32) * 9
+			if start+i >= len(lines) {
+				return "", fmt.Errorf("index out of range for character: %q", r)
 			}
-			result.WriteString("\n")
+			builder.WriteString(lines[start+i])
 		}
+		builder.WriteString("\n")
 	}
-
-	return result.String(), nil
+	return builder.String(), nil
 }

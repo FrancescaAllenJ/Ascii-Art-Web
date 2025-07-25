@@ -1,27 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>ASCII Art Generator</title>
 </head>
 <body>
   <h1>ASCII Art Generator</h1>
-
   <form action="/ascii-art" method="POST">
-    <label for="text">Enter your text:</label><br />
-    <input type="text" id="text" name="text" required /><br /><br />
+    <label for="inputText">Enter text:</label>
+    <input type="text" id="inputText" name="inputText" required><br><br>
 
-    <label>Select banner style:</label><br />
-    <input type="radio" id="standard" name="banner" value="standard" checked />
-    <label for="standard">Standard</label><br />
+    <label>Choose a banner:</label><br>
+    <input type="radio" id="standard" name="banner" value="standard" checked>
+    <label for="standard">Standard</label><br>
+    <input type="radio" id="shadow" name="banner" value="shadow">
+    <label for="shadow">Shadow</label><br>
+    <input type="radio" id="thinkertoy" name="banner" value="thinkertoy">
+    <label for="thinkertoy">Thinkertoy</label><br><br>
 
-    <input type="radio" id="shadow" name="banner" value="shadow" />
-    <label for="shadow">Shadow</label><br />
-
-    <input type="radio" id="thinkertoy" name="banner" value="thinkertoy" />
-    <label for="thinkertoy">Thinkertoy</label><br /><br />
-
-    <button type="submit">Generate ASCII Art</button>
+    <button type="submit">Generate ASCII</button>
   </form>
 </body>
 </html>
