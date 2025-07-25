@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ASCII Art Result</title>
+  <style>
+    body {
+      font-family: monospace;
+      white-space: pre;
+    }
+    .error {
+      color: red;
+      font-weight: bold;
+    }
+    pre {
+      background: #f9f9f9;
+      padding: 1em;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <h1>ASCII Art Result</h1>
+
+  {{if .Error}}
+    <p class="error">Error: {{.Error}}</p>
+  {{else}}
+    <pre>{{.Art}}</pre>
+  {{end}}
+
+  <br><a href="/">🔁 Generate another</a>
+</body>
+</html>
