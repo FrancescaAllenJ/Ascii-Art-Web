@@ -1,24 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>ASCII Art Generator</title>
+  <meta charset="UTF-8" />
+  <title>Ascii Art Web</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+           margin: 0; padding: 2rem; background:#0b0c10; color:#e5e7eb; }
+    .card { max-width: 900px; margin: 0 auto; background:#111827; padding: 1.5rem; border-radius: 14px; }
+    h1 { margin: 0 0 1rem 0; font-weight: 700; }
+    label { display:block; margin-top: 1rem; font-weight: 600; }
+    textarea { width: 100%; min-height: 120px; background:#0b0c10; color:#e5e7eb; border:1px solid #374151; border-radius:10px; padding:.75rem; }
+    .row { display:flex; gap:1rem; align-items:center; flex-wrap:wrap; }
+    .radios { display:flex; gap:1rem; margin:.5rem 0 1rem 0; }
+    .btn { background:#3b82f6; color:white; border:none; padding:.7rem 1rem; border-radius:10px; cursor:pointer; font-weight:700; }
+    .btn:hover { filter: brightness(1.1); }
+    .muted { color:#9ca3af; font-size:.9rem; }
+  </style>
 </head>
 <body>
-  <h1>ASCII Art Generator</h1>
-  <form action="/ascii-art" method="POST">
-    <label for="inputText">Enter text:</label><br>
-    <textarea id="inputText" name="inputText" rows="4" cols="60" placeholder="Enter text here. Use Enter for new lines." required></textarea><br><br>
+  <div class="card">
+    <h1>ASCII Art (web)</h1>
+    <p class="muted">Enter text, pick a banner, and render.</p>
 
-    <label>Choose a banner:</label><br>
-    <input type="radio" id="standard" name="banner" value="standard" checked>
-    <label for="standard">Standard</label><br>
-    <input type="radio" id="shadow" name="banner" value="shadow">
-    <label for="shadow">Shadow</label><br>
-    <input type="radio" id="thinkertoy" name="banner" value="thinkertoy">
-    <label for="thinkertoy">Thinkertoy</label><br><br>
+    <form action="/ascii-art" method="post">
+      <label for="inputText">Text</label>
+      <textarea id="inputText" name="inputText" placeholder="Type here... e.g. Hello&#10;There"></textarea>
 
-    <button type="submit">Generate ASCII</button>
-  </form>
+      <label>Banner</label>
+      <div class="radios">
+        <label><input type="radio" name="banner" value="standard" checked> standard</label>
+        <label><input type="radio" name="banner" value="shadow"> shadow</label>
+        <label><input type="radio" name="banner" value="thinkertoy"> thinkertoy</label>
+      </div>
+
+      <div class="row">
+        <button class="btn" type="submit">Render</button>
+      </div>
+    </form>
+  </div>
 </body>
 </html>
