@@ -1,42 +1,34 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Ascii Art Web</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-           margin: 0; padding: 2rem; background:#0b0c10; color:#e5e7eb; }
-    .card { max-width: 900px; margin: 0 auto; background:#111827; padding: 1.5rem; border-radius: 14px; }
-    h1 { margin: 0 0 1rem 0; font-weight: 700; }
-    label { display:block; margin-top: 1rem; font-weight: 600; }
-    textarea { width: 100%; min-height: 120px; background:#0b0c10; color:#e5e7eb; border:1px solid #374151; border-radius:10px; padding:.75rem; }
-    .row { display:flex; gap:1rem; align-items:center; flex-wrap:wrap; }
-    .radios { display:flex; gap:1rem; margin:.5rem 0 1rem 0; }
-    .btn { background:#3b82f6; color:white; border:none; padding:.7rem 1rem; border-radius:10px; cursor:pointer; font-weight:700; }
-    .btn:hover { filter: brightness(1.1); }
-    .muted { color:#9ca3af; font-size:.9rem; }
-  </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ASCII Art Web</title>
+  <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
-  <div class="card">
-    <h1>ASCII Art (web)</h1>
-    <p class="muted">Enter text, pick a banner, and render.</p>
+  <div class="container">
+    <h1>ASCII Art Web</h1>
+    <p class="muted">Type text, pick a banner, generate art.</p>
 
     <form action="/ascii-art" method="post">
-      <label for="inputText">Text</label>
-      <textarea id="inputText" name="inputText" placeholder="Type here... e.g. Hello&#10;There"></textarea>
-
-      <label>Banner</label>
-      <div class="radios">
-        <label><input type="radio" name="banner" value="standard" checked> standard</label>
-        <label><input type="radio" name="banner" value="shadow"> shadow</label>
-        <label><input type="radio" name="banner" value="thinkertoy"> thinkertoy</label>
+      <div class="form-group">
+        <label for="inputText">Text</label>
+        <!-- The name must be inputText (your Go handler reads r.PostForm.Get("inputText")) -->
+        <textarea id="inputText" name="inputText" placeholder="Hello&#10;There"></textarea>
       </div>
 
-      <div class="row">
-        <button class="btn" type="submit">Render</button>
+      <div class="form-group">
+        <label>Banner</label>
+        <!-- The name must be banner; values must be exactly standard|shadow|thinkertoy -->
+        <div class="banner-options">
+          <label><input type="radio" name="banner" value="standard" checked> standard</label>
+          <label><input type="radio" name="banner" value="shadow"> shadow</label>
+          <label><input type="radio" name="banner" value="thinkertoy"> thinkertoy</label>
+        </div>
       </div>
+
+      <button type="submit">Generate ASCII</button>
     </form>
   </div>
 </body>
