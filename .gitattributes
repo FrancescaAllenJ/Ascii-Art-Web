@@ -1,0 +1,9 @@
+# Keep banner files strictly LF so line counts (856) never break
+asciiart/banners/*.txt text eol=lf
+
+# Keep templates LF to avoid stray \r in HTML
+templates/*.html text eol=lf
+
+# Code & docs—LF across platforms
+*.go text eol=lf
+*.md  text eol=lf
