@@ -1,8 +1,6 @@
 package asciiart
 
 import (
-	"bufio"
-	"bytes"
 	"embed"
 	"fmt"
 	"strings"
@@ -23,7 +21,7 @@ var allowed = map[string]bool{
 	"thinkertoy": true,
 }
 
-// preloadBanner loads and caches the embedded banner lines.
+// preloadBanner loads & caches banner lines (expects 856 total, incl. final blank).
 func preloadBanner(banner string) ([]string, error) {
 	if !allowed[banner] {
 		return nil, fmt.Errorf("unknown banner: %q", banner)
@@ -37,32 +35,31 @@ func preloadBanner(banner string) ([]string, error) {
 	}
 	cacheLock.RUnlock()
 
-	// read embedded file
 	data, err := bannerFS.ReadFile("banners/" + banner + ".txt")
 	if err != nil {
 		return nil, fmt.Errorf("failed to load embedded banner %q: %w", banner, err)
 	}
 
-	// ensure trailing LF so the scanner doesn’t drop the last row
-	if len(data) == 0 || data[len(data)-1] != '\n' {
-		data = append(data, '\n')
+	// Normalise line endings: CRLF/CR -> LF
+	s := strings.ReplaceAll(string(data), "\r\n", "\n")
+	s = strings.ReplaceAll(s, "\r", "\n")
+
+	// Ensure a trailing LF so Split will include a final empty element
+	if !strings.HasSuffix(s, "\n") {
+		s += "\n"
 	}
 
-	// scan into logical lines; strip any stray \r (CRLF hardening)
-	var lines []string
-	sc := bufio.NewScanner(bytes.NewReader(data))
-	for sc.Scan() {
-		line := sc.Text()
-		if strings.HasSuffix(line, "\r") {
-			line = strings.TrimSuffix(line, "\r")
+	// Split into lines; this yields an empty last element for the final blank line
+	lines := strings.Split(s, "\n")
+
+	// Trim any accidental trailing \r per line (belt & braces)
+	for i := range lines {
+		if strings.HasSuffix(lines[i], "\r") {
+			lines[i] = strings.TrimSuffix(lines[i], "\r")
 		}
-		lines = append(lines, line)
-	}
-	if err := sc.Err(); err != nil {
-		return nil, err
 	}
 
-	// canonical banners: 856 total lines (95 chars × 9 + final blank)
+	// Expect 95*9 + 1 = 856
 	if len(lines) != 856 {
 		return nil, fmt.Errorf("banner %q malformed: got %d lines, want 856", banner, len(lines))
 	}
@@ -82,7 +79,7 @@ func GenerateASCII(text, banner string) (string, error) {
 	}
 
 	var b strings.Builder
-	// Each glyph uses 8 displayed rows; file stores 9 per glyph (8 + 1 separator)
+	// Each glyph uses 8 visible rows; file stores 9 per glyph (8 + 1 separator)
 	for row := 0; row < 8; row++ {
 		for _, r := range text {
 			if r < 32 || r > 126 {
@@ -102,17 +99,23 @@ func GenerateASCII(text, banner string) (string, error) {
 
 // Convert renders multi-line input by joining per-line ASCII blocks,
 // inserting a single blank separator line between blocks.
+// Empty input returns an empty output (per the tests).
 func Convert(multilineText, banner string) (string, error) {
-	// normalise Windows inputs
+	// Normalise Windows inputs
 	cleaned := strings.ReplaceAll(multilineText, "\r\n", "\n")
 	cleaned = strings.ReplaceAll(cleaned, "\r", "")
+
+	// Special-case: empty input -> empty output
+	if cleaned == "" {
+		return "", nil
+	}
 
 	parts := strings.Split(cleaned, "\n")
 	var out strings.Builder
 
 	for i, line := range parts {
 		if line == "" {
-			// explicit empty line in input -> emit one blank line
+			// explicit empty line in the input -> emit one blank line
 			out.WriteString("\n")
 			continue
 		}
